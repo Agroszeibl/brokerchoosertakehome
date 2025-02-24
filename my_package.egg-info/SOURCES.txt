@@ -1,0 +1,11 @@
+README.md
+setup.py
+core/__init__.py
+core/analyst.py
+core/db_handler.py
+core/presenter.py
+core/python_db_handler.py
+my_package.egg-info/PKG-INFO
+my_package.egg-info/SOURCES.txt
+my_package.egg-info/dependency_links.txt
+my_package.egg-info/top_level.txt
