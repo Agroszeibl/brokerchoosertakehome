@@ -69,7 +69,8 @@ class Analyst:
                 , COUNT(1) AS total_count
                 , conversion_count / total_count AS conversion_rate
             FROM analytics.brokerchooser
-            WHERE is_last_action_by_session = TRUE
+            WHERE 
+                is_last_action_by_session = TRUE
             GROUP BY 1, 2
             ORDER BY 2 ASC
             )
@@ -81,7 +82,18 @@ class Analyst:
             FROM base
         '''
 
-        return self.db_handler.fetch_df(query)
+        # performing iqr cleanup to smooth out the trend
+        df = self.db_handler.fetch_df(query)
+        q1 = df["conversion_rate"].quantile(0.25)
+        q3 = df["conversion_rate"].quantile(0.75)
+        iqr = q3 - q1
+
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q1 + 1.5 * iqr
+
+        df_clean = df[(df["conversion_rate"] >= lower_bound) & (df["conversion_rate"] <= upper_bound)]
+
+        return df_clean
     
     def conversion_rates_by_page_cat_agg(self):
         '''
@@ -358,11 +370,9 @@ class Analyst:
             page_category
             , COUNT_IF(broker_id is NOT NULL) AS conversion_count
             , COUNT(1) AS total_count
-            , conversion_count / total_count AS conversion_rate
         FROM analytics.brokerchooser
         WHERE is_last_action_by_session = TRUE
         GROUP BY 1
-        ORDER BY 4 DESC
         '''
 
         return self.db_handler.fetch_df(query)

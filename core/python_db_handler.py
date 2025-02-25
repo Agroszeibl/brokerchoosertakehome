@@ -130,8 +130,8 @@ class PythonDbHandler:
         Using our parquet loader method
         '''
         self.ingest_csv(
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/sources/broker_data.csv',
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_broker_data'
+            self.BASE_DIR/'python_db'/'sources'/'broker_data.csv',
+            self.BASE_DIR/'python_db'/'staging'/'staging_broker_data'
         )
 
     def staging_brokerchooser_conversions(self):
@@ -168,8 +168,8 @@ class PythonDbHandler:
         Using our parquet loader method
         '''
         self.ingest_csv(
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/sources/brokerchooser_conversions.csv',
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_brokerchooser_conversions',
+            self.BASE_DIR/'python_db'/'sources'/'brokerchooser_conversions.csv',
+            self.BASE_DIR/'python_db'/'staging'/'staging_brokerchooser_conversions',
             delimiter=';'
         )
 
@@ -200,8 +200,8 @@ class PythonDbHandler:
         Using our parquet loader method
         '''
         self.ingest_csv(
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/sources/page_category_mapping.csv',
-            '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_page_category_mapping',
+            self.BASE_DIR/'python_db'/'sources'/'page_category_mapping.csv',
+            self.BASE_DIR/'python_db'/'staging'/'staging_page_category_mapping',
             delimiter=';'
         )
 
@@ -233,8 +233,8 @@ class PythonDbHandler:
         We're cleaning up dtypes and errors here
         '''
 
-        staging_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_broker_data'
-        int_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_broker_data'
+        staging_parquet = self.BASE_DIR/'python_db'/'staging'/'staging_broker_data'
+        int_parquet = self.BASE_DIR/'python_db'/'int'/'int_broker_data'
 
         df = dd.read_parquet(staging_parquet, engine="pyarrow")
         delayed_partitions = df.to_delayed()
@@ -287,8 +287,8 @@ class PythonDbHandler:
         We're cleaning up dtypes and errors here
         '''
 
-        staging_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_brokerchooser_conversions'
-        int_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_brokerchooser_conversions'
+        staging_parquet = self.BASE_DIR/'python_db'/'staging'/'staging_brokerchooser_conversions'
+        int_parquet = self.BASE_DIR/'python_db'/'int'/'int_brokerchooser_conversions'
 
         df = dd.read_parquet(staging_parquet, engine="pyarrow")
         delayed_partitions = df.to_delayed()
@@ -335,8 +335,8 @@ class PythonDbHandler:
         We're cleaning up dtypes and errors here
         '''
 
-        staging_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/staging/staging_page_category_mapping'
-        int_parquet = '/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_page_category_mapping'
+        staging_parquet = self.BASE_DIR/'python_db'/'staging'/'staging_page_category_mapping'
+        int_parquet = self.BASE_DIR/'python_db'/'int'/'int_page_category_mapping'
 
         df = dd.read_parquet(staging_parquet, engine="pyarrow")
         delayed_partitions = df.to_delayed()
@@ -472,7 +472,7 @@ class PythonDbHandler:
 
         # preparing col names for join
         logger.info("Starting col names cleanup.")
-        broker_data = dd.read_parquet("/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_broker_data/")
+        broker_data = dd.read_parquet(self.BASE_DIR/'python_db'/'int'/'int_broker_data/')
         broker_data['broker_id'] = broker_data['id']
         broker_data.drop(columns=['broker_id'])
 
@@ -486,14 +486,14 @@ class PythonDbHandler:
         broker_data.drop(columns=['broker_ip_country'])
 
 
-        conversions = dd.read_parquet("/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_brokerchooser_conversions/")
+        conversions = dd.read_parquet(self.BASE_DIR/'python_db'/'int'/'int_brokerchooser_conversions/')
         conversions['conversion_id'] = conversions['id']
         conversions.drop(columns=['conversion_id'])
 
         conversions['conversion_country'] = conversions['country_name']
         conversions.drop(columns=['conversion_country'])
 
-        page_category_mapping = dd.read_parquet("/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/int/int_page_category_mapping/")
+        page_category_mapping = dd.read_parquet(self.BASE_DIR/'python_db'/'int'/'int_page_category_mapping/')
 
         logger.info('col names cleanup finished')
 
@@ -607,7 +607,7 @@ class PythonDbHandler:
 
         Note: Can I setup manual partitioning logic for the parquet dataset to remove the attribution error?
         '''
-        analytics_data = dd.read_parquet("/Users/adamgroszeibl/Documents/airflow_brokerchooser/analytics_pipeline/python_db/analytics/analytics_brokerchooser/")
+        analytics_data = dd.read_parquet(self.BASE_DIR/'python_db'/'analytics'/'analytics_brokerchooser/')
 
         for partition in analytics_data.to_delayed():
 
